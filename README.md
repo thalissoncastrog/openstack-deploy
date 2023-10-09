@@ -61,10 +61,23 @@ Feito isso, vamos criar a interface de rede virtual:
   - Exemplo:
     - Label da interface de rede: eno1
     - ID Vlan: 3
+    - IP: 192.168.1.100/24
 
 ```
 $ sudo ip link add link eno1 name eno1.3 type vlan id 3
 ```
+Atribua um ip a sua vlan:
+
+```
+sudo ip addr add 192.168.1.100/24 dev eno1.3
+```
+
+Para verificar se as configurações foram aplicadas, execute:
+
+```
+$ ip a
+```
+Porém para essas configurações ficarem definitivas, é necessário a inclusão em um arquivos que vamos configurar nas próximas etapas
 
 Acesse o arquivo "/etc/netplan/00-installer-config.yaml"
 
@@ -72,6 +85,7 @@ Acesse o arquivo "/etc/netplan/00-installer-config.yaml"
  $ sudo nano /etc/netplan/00-installer-config.yaml
 ```
 ```
+#Warning: Nesse arquivo é muito importante as identações
  network:
   renderer: networkd
   ethernets:
@@ -83,6 +97,11 @@ Acesse o arquivo "/etc/netplan/00-installer-config.yaml"
       routes:
         - to: default
           via: 10.10.1.253
+  vlans:
+        eno1.3:
+            id: 3
+            link: eno1
+            addresses: [192.168.1.100/24]
   version: 2
 ```
 Após isso rode o comando para aplicar as configurações:
